@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://moeenchanna.github.io/openprice-atlas/sitemap.xml

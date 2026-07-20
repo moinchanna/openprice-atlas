@@ -1,0 +1,15 @@
+{
+  "short_name": "OpenPrice Atlas",
+  "name": "OpenPrice Atlas - Global Regional Pricing Calculator",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/openprice-atlas/",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "display": "standalone"
+}

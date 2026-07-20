@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-450: #94a3b8;
+  --color-slate-550: #64748b;
+  --color-slate-750: #334155;
+  --color-slate-850: #1e293b;
+  --color-amber-550: #d97706;
+  --color-amber-650: #b45309;
+  --color-red-650: #be123c;
+  --color-indigo-650: #4338ca;
+  --color-indigo-850: #312e81;
+}
+
+/* Base custom font overrides to use modern system font stacks */
+:root {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  scroll-behavior: smooth;
+}
+
+/* Custom fade-in animation for advanced settings */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Tailwind v4 dark mode configuration based on class selector */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
