@@ -31,7 +31,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartCalculating }) => {
 
         {/* Supporting Leadin Text: Stronger contrast & size */}
         <p className="font-sans text-[19px] sm:text-[22px] md:text-[26px] text-[#404040] dark:text-[#D4D4D4] max-w-[850px] mx-auto leading-[1.45] text-center">
-          Enter your base rate to calculate optimized localized price targets utilizing real Purchasing Power Parity (PPP) data models.
+          Enter your base price to estimate fair regional price targets using World Bank purchasing-power and exchange-rate data.
         </p>
 
         {/* Stark buttons: 48px height, 16px font size, clear states */}

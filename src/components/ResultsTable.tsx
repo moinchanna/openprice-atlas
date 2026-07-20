@@ -190,6 +190,33 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({
     return 'bg-[#FEF2F2] dark:bg-[#3F1A1A] text-[#EF4444] dark:text-[#FCA5A5] border-2 border-[#EF4444] dark:border-[#FCA5A5]'
   }
 
+  // Helper to render year gap status badge
+  const getYearGapStatus = (r: CalculationResult) => {
+    const pppYear = r.country.pppYear;
+    const fxYear = r.country.fxYear;
+    if (!pppYear || !fxYear) return null;
+    const gap = Math.abs(pppYear - fxYear);
+    let label: string;
+    let colorClass: string;
+    if (gap <= 1) {
+      label = 'Closely matched years';
+      colorClass = 'text-[#16A34A] dark:text-[#4ADE80]'; // green
+    } else if (gap <= 3) {
+      label = 'Mixed-year data';
+      colorClass = 'text-[#F59E0B] dark:text-[#F59E0B]'; // amber
+    } else {
+      label = 'Stale or widely mixed-year data';
+      colorClass = 'text-[#EF4444] dark:text-[#EF4444]'; // red
+    }
+    const info = `PPP: ${pppYear} · FX: ${fxYear} · ${gap}-year gap`;
+    return (
+      <span className={`ml-2 inline-flex items-center ${colorClass}`}>
+        <AlertCircle className="w-4 h-4 mr-1" />
+        {info} – {label}
+      </span>
+    );
+  };
+
   const handleModeChange = (mode: 'one-currency' | 'local') => {
     onSettingsChange({
       ...settings,
@@ -699,7 +726,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({
                               </div>
                               <div>
                                 <strong className="block text-[14px] uppercase font-bold text-[#666666] dark:text-[#A3A3A3] mb-1 tracking-wider">Data Year</strong>
-                                <span className="font-mono font-bold text-[#0A0A0A] dark:text-[#FAFAFA] text-[18px]">{r.country.pppYear || r.country.fxYear || 'N/A'}</span>
+                                <span className="font-mono font-bold text-[#0A0A0A] dark:text-[#FAFAFA] text-[18px]">{r.country.pppYear || r.country.fxYear || 'N/A'}</span>{getYearGapStatus(r)}
                               </div>
                               <div>
                                 <strong className="block text-[14px] uppercase font-bold text-[#666666] dark:text-[#A3A3A3] mb-1 tracking-wider">Data Quality</strong>
@@ -908,7 +935,7 @@ export const ResultsTable: React.FC<ResultsTableProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="font-bold text-[#666666] dark:text-[#A3A3A3] uppercase">Data year:</span>
-                      <span className="font-mono font-bold text-[#0A0A0A] dark:text-[#FAFAFA]">{r.country.pppYear || 'N/A'}</span>
+                      <span className="font-mono font-bold text-[#0A0A0A] dark:text-[#FAFAFA]">{r.country.pppYear || 'N/A'}</span>{getYearGapStatus(r)}
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-[#666666] dark:text-[#A3A3A3] uppercase">Economic quality:</span>

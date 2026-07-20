@@ -210,7 +210,7 @@ export function downloadPDF(
       doc.text(str, pageWidth - margin - 20, pageHeight - 10)
 
       // Disclaimer & Credits
-      const disclaimer = 'Disclaimer: OpenPrice Atlas is an independent open-source project. Not affiliated with Netflix. All prices are estimates.'
+      const disclaimer = 'Disclaimer: OpenPrice Atlas provides pricing estimates based on economic indicators and configurable assumptions. It does not predict conversion rates or determine the ideal commercial price. Use the results as a starting point for market research and validate them with customer, competitor, tax, payment, and product data.'
       doc.text(disclaimer, margin, pageHeight - 12)
       doc.text('GitHub: https://github.com/moinchanna/openprice-atlas', margin, pageHeight - 8)
     },

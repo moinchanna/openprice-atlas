@@ -23,18 +23,18 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
     {
       id: 'revenue',
       label: 'Higher revenue',
-      desc: 'Smaller discounts across countries.',
+      desc: 'Applies smaller regional discounts.',
     },
     {
       id: 'balanced',
       label: 'Balanced',
-      desc: 'A practical mix of affordability and revenue.',
+      desc: 'Balances affordability with revenue protection.',
       isRecommended: true,
     },
     {
       id: 'accessibility',
       label: 'More affordable',
-      desc: 'Larger discounts in lower-income countries.',
+      desc: 'Applies stronger purchasing-power adjustments.',
     },
   ], [])
 
@@ -175,7 +175,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
           {/* Base Price & Currency Selector beside it */}
           <div>
             <label htmlFor="basePrice" className="block text-[14px] font-bold text-[#0A0A0A] dark:text-[#FAFAFA] uppercase tracking-[0.06em] mb-2">
-              YOUR CURRENT MONTHLY PRICE <span className="text-[#EF4444]">*</span>
+              {settings.billingPeriod === 'monthly' ? 'YOUR CURRENT MONTHLY PRICE' : 'YOUR CURRENT YEARLY PRICE'} <span className="text-[#EF4444]">*</span>
             </label>
             
             <div className="flex gap-2">
@@ -235,7 +235,7 @@ export const CalculatorForm: React.FC<CalculatorFormProps> = ({
 
             {/* Helper notes: minimum 15px */}
             <p className="text-[15px] text-[#404040] dark:text-[#D4D4D4] mt-2 leading-normal">
-              Enter the price customers currently pay in the United States.
+              Enter your current baseline price. It will be normalized to USD before regional adjustments are calculated.
             </p>
             {settings.baseCurrency !== 'USD' && (
               <p className="text-[15px] text-[#EF4444] mt-2 font-bold uppercase tracking-wider">
