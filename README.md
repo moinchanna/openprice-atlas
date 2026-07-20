@@ -8,7 +8,7 @@
 OpenPrice Atlas is a production-quality, open-source static regional pricing calculator. It helps SaaS founders, mobile developers, and indie hackers estimate purchasing-power-parity (PPP) adjusted prices for global markets.
 
 **Live Website Demo:** [https://moinchanna.github.io/openprice-atlas/](https://moinchanna.github.io/openprice-atlas/)
-
+If OpenPrice Atlas helps your project, consider [giving the repository a star](https://github.com/moinchanna/openprice-atlas) ⭐
 ---
 
 ## Project Overview
@@ -19,9 +19,9 @@ OpenPrice Atlas is a pricing recommendation tool, not a simple currency converte
 *   **Blended Pricing Formula**: Blends official exchange rates with purchasing power parity (PPP) using an adjustable strength slider.
 *   **Strategy Presets**: Select from *Revenue Focused* (40% adjustment), *Balanced* (70% adjustment), or *Accessibility Focused* (90% adjustment) presets.
 *   **Psychological Pricing**: Smart currency-aware rounding (e.g. `$9.99`, `₹179`, `¥890`) while protecting price accuracy within an 8% variance window.
-*   **Advanced Bounds**: Configurable price floors and ceilings to prevent VPN shopping abuse or excessive premiums.
+*   **Configurable Bounds**: Price floors and ceilings reduce extreme discounts and can limit arbitrage incentives.
 *   **Manual Overrides**: Edit calculated recommendations directly in the table. Active overrides are labeled and included in exports.
-*   **No Backend / No Tracking**: Runs entirely in the browser with 100% data privacy. Saves configurations inside the browser's `localStorage`.
+*   **No Backend / No Analytics Cookies**: Runs entirely in the browser with 100% data privacy. Saves configurations inside the browser's `localStorage`.
 *   **Exporters**: Real browser-based CSV and landscape PDF exports of calculated global lists.
 *   **Data Transparency**: Clear economic indicator listings, data years, and fallback labels showing how every price was estimated.
 
@@ -39,7 +39,7 @@ Where:
 *   $PPP$ = Purchasing Power Parity factor (units per International USD)
 *   $S$ = Adjustment Strength ($0.0 \le S \le 1.0$)
 
-For a complete explanation, see our [Methodology Documentation](file:///Users/moeenchanna/Developer/Web/OpenPrice%20Atlas/METHODOLOGY.md).
+For a complete explanation, see our [Methodology Documentation](./METHODOLOGY.md).
 
 ---
 
@@ -153,7 +153,7 @@ Deployment is fully automated using GitHub Actions. Upon pushing code to the `ma
 5.  Compiles the production static bundle.
 6.  Deploys the static assets to **GitHub Pages** under the `/openprice-atlas/` subpath.
 
-For manual steps to configure Pages in your repository settings, see [CONTRIBUTING.md](file:///Users/moeenchanna/Developer/Web/OpenPrice%20Atlas/CONTRIBUTING.md).
+For manual steps to configure Pages in your repository settings, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ---
 
@@ -167,4 +167,4 @@ Economic indicators cannot measure customer demand, local competition, taxes, pa
 
 ## License
 
-This project is licensed under the terms of the [MIT License](file:///Users/moeenchanna/Developer/Web/OpenPrice%20Atlas/LICENSE).
+This project is licensed under the terms of the [MIT License](./LICENSE).

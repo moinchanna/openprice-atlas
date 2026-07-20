@@ -52,7 +52,7 @@ export const Hero: React.FC<HeroProps> = ({ onStartCalculating }) => {
 
         {/* Trust block */}
         <p className="font-sans text-[15px] font-bold tracking-[0.06em] text-[#525252] dark:text-[#D4D4D4] pt-4 select-none leading-relaxed">
-          FREE · OPEN SOURCE · NO SIGNUP · NO TRACKING
+          FREE · OPEN SOURCE · NO SIGNUP · NO COOKIES
         </p>
       </div>
     </section>
