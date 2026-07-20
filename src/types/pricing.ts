@@ -22,15 +22,18 @@ export interface CountryData {
 
 export interface CalculationResult {
   country: CountryData
-  fxConvertedPrice: number
+  fxConvertedPrice: number // converted directly from base (to display currency or local currency)
   rawRegionalPrice: number
-  recommendedPrice: number
+  recommendedPrice: number // final displayed suggested price (rounded to display or local currency)
   recommendedPriceFormatted: string
-  rawRecommendedPrice: number // before rounding
+  rawRecommendedPrice: number
   discountPercent: number
   difference: number
   isOverride: boolean
-  overrideValue: number | null
+  overrideValue: number | null // Stored as neutral USD value!
+  recommendedLocalPrice: number // suggested local price
+  recommendedLocalPriceFormatted: string
+  factor: number // regional affordability factor
 }
 
 export interface FormSettings {
@@ -42,4 +45,8 @@ export interface FormSettings {
   enablePsychologicalPricing: boolean
   priceFloor: number // e.g. 0.20 for 20%
   priceCeiling: number // e.g. 1.20 for 120%
+  baseCurrency: string
+  displayMode: 'one-currency' | 'local'
+  displayCurrency: string // e.g. 'same-as-base' or a specific code like 'EUR'
+  showLocalPrice: boolean
 }

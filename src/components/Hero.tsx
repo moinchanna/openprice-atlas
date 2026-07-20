@@ -1,6 +1,10 @@
 import React from 'react'
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onStartCalculating: () => void
+}
+
+export const Hero: React.FC<HeroProps> = ({ onStartCalculating }) => {
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id)
     if (el) {
@@ -9,45 +13,49 @@ export const Hero: React.FC = () => {
   }
 
   return (
-    <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 transition-colors duration-300">
-      {/* Decorative ambient backgrounds */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none opacity-30">
-        <div className="absolute top-12 left-10 w-72 h-72 rounded-full bg-indigo-400 blur-3xl dark:bg-indigo-600 dark:opacity-20" />
-        <div className="absolute bottom-12 right-10 w-96 h-96 rounded-full bg-blue-300 blur-3xl dark:bg-indigo-800 dark:opacity-10" />
-      </div>
-
-      <div className="relative max-w-4xl mx-auto text-center">
-        <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 mb-6">
-          Pricing Intelligence for Global Products
+    <section className="relative overflow-hidden py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA] dark:bg-[#0A0A0A] text-[#0A0A0A] dark:text-[#FAFAFA] border-b border-[#E5E5E5] dark:border-[#1A1A1A] transition-colors duration-300">
+      <div className="relative max-w-[1200px] mx-auto text-center space-y-6 sm:space-y-8">
+        
+        {/* Overline label */}
+        <span className="block font-sans text-sm sm:text-[15px] font-bold tracking-[0.1em] text-[#EF4444] uppercase">
+          GLOBAL SAAS PRICING
         </span>
 
-        <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none mb-6">
-          Set smarter prices for <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400 dark:from-indigo-400 dark:to-indigo-300">every market</span>.
+        {/* Short red editorial accent rule */}
+        <div className="w-12 h-1 bg-[#EF4444] mx-auto mb-4" />
+
+        {/* Display Heading: Responsive sizing clamp */}
+        <h1 className="font-display text-[38px] sm:text-[48px] md:text-[64px] lg:text-[clamp(64px,7vw,108px)] font-normal leading-[1.05] tracking-tight text-[#0A0A0A] dark:text-[#FAFAFA] uppercase max-w-5xl mx-auto break-words">
+          FIND A FAIR PRICE<br />FOR EVERY COUNTRY.
         </h1>
 
-        <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Enter your base subscription price and generate purchasing-power-adjusted price recommendations for countries around the world.
+        {/* Supporting Leadin Text: Stronger contrast & size */}
+        <p className="font-sans text-[19px] sm:text-[22px] md:text-[26px] text-[#404040] dark:text-[#D4D4D4] max-w-[850px] mx-auto leading-[1.45] text-center">
+          Enter your base rate to calculate optimized localized price targets utilizing real Purchasing Power Parity (PPP) data models.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+        {/* Stark buttons: 48px height, 16px font size, clear states */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <button
-            onClick={() => scrollToSection('calculator-section')}
-            className="w-full sm:w-auto py-3.5 px-6 rounded-xl font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/10 hover:shadow-indigo-600/20 active:scale-[0.98] transition-all"
+            onClick={onStartCalculating}
+            className="w-full sm:w-auto h-12 px-8 border-2 border-[#0A0A0A] dark:border-[#FAFAFA] bg-[#0A0A0A] dark:bg-[#FAFAFA] text-[#FAFAFA] dark:text-[#0A0A0A] hover:bg-[#EF4444] dark:hover:bg-[#EF4444] dark:hover:text-[#FAFAFA] hover:border-[#EF4444] dark:hover:border-[#EF4444] active:bg-[#DC2626] font-sans text-[16px] font-bold tracking-[0.04em] uppercase rounded-none transition-colors duration-150 cursor-pointer flex items-center justify-center select-none focus:outline-none focus-ring"
           >
-            Calculate regional prices
+            START CALCULATING
           </button>
           <button
             onClick={() => scrollToSection('methodology-section')}
-            className="w-full sm:w-auto py-3.5 px-6 rounded-xl font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all"
+            className="w-full sm:w-auto h-12 px-8 border-2 border-[#0A0A0A] dark:border-[#FAFAFA] bg-transparent text-[#0A0A0A] dark:text-[#FAFAFA] hover:bg-[#0A0A0A] dark:hover:bg-[#FAFAFA] hover:text-[#FAFAFA] dark:hover:text-[#0A0A0A] font-sans text-[16px] font-bold tracking-[0.04em] uppercase rounded-none transition-colors duration-150 cursor-pointer flex items-center justify-center select-none focus:outline-none focus-ring"
           >
-            View methodology
+            HOW IT WORKS
           </button>
         </div>
 
-        <p className="text-xs sm:text-sm font-medium text-slate-400 dark:text-slate-500">
-          Free · Open Source · No signup · No data tracking
+        {/* Trust block */}
+        <p className="font-sans text-[15px] font-bold tracking-[0.06em] text-[#525252] dark:text-[#D4D4D4] pt-4 select-none leading-relaxed">
+          FREE · OPEN SOURCE · NO SIGNUP · NO TRACKING
         </p>
       </div>
     </section>
   )
 }
+export default Hero

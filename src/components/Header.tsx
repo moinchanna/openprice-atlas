@@ -1,78 +1,99 @@
-import React from 'react'
-import { Globe, Sun, Moon } from 'lucide-react'
+import React, { useState } from 'react'
+import { Sun, Moon } from 'lucide-react'
 
-interface HeaderProps {
-  darkMode: boolean
-  setDarkMode: (val: boolean) => void
-}
+export const Header: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<'calculator' | 'methodology' | ''>('calculator')
+  const [isDark, setIsDark] = useState(() => {
+    return typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false
+  })
 
-export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string, section: 'calculator' | 'methodology') => {
+    setActiveSection(section)
     const el = document.getElementById(id)
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  const toggleTheme = () => {
+    const nextDark = !isDark
+    setIsDark(nextDark)
+    if (nextDark) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('openprice_atlas_theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('openprice_atlas_theme', 'light')
     }
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <Globe className="h-6 w-6 text-indigo-600 dark:text-indigo-400 animate-pulse" />
-          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-            OpenPrice <span className="text-indigo-600 dark:text-indigo-400">Atlas</span>
+    <header className="sticky top-0 z-50 w-full border-b-2 border-[#0A0A0A] dark:border-[#525252] bg-white dark:bg-[#0A0A0A] text-[#0A0A0A] dark:text-[#FAFAFA] transition-colors duration-300">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        
+        {/* Left: Brand logo & name */}
+        <div
+          className="flex items-center gap-2 cursor-pointer select-none"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            setActiveSection('calculator')
+          }}
+        >
+          <span className="font-display text-lg tracking-tight text-[#0A0A0A] dark:text-[#FAFAFA] uppercase">
+            OPENPRICE ATLAS
           </span>
         </div>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          <button
-            onClick={() => scrollToSection('calculator-section')}
-            className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-          >
-            Calculator
-          </button>
-          <button
-            onClick={() => scrollToSection('methodology-section')}
-            className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-          >
-            Methodology
-          </button>
-          <a
-            href="https://github.com/moeenchanna/openprice-atlas"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1.5"
-          >
-            <svg className="h-4 w-4 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.577.688.479C19.138 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" /></svg>
-            GitHub
-          </a>
-        </nav>
+        {/* Right: Navigation controls and theme switcher */}
+        <div className="flex items-center gap-6 h-full">
+          <nav className="flex items-center h-full gap-6 text-[15px] font-bold font-sans tracking-wide">
+            <button
+              onClick={() => scrollToSection('calculator-section', 'calculator')}
+              className={`h-full px-1 border-b-[3px] transition-colors cursor-pointer flex items-center ${
+                activeSection === 'calculator'
+                  ? 'border-[#EF4444] text-[#0A0A0A] dark:text-[#FAFAFA]'
+                  : 'border-transparent text-[#404040] dark:text-[#D4D4D4] hover:text-[#0A0A0A] dark:hover:text-[#FAFAFA]'
+              }`}
+            >
+              CALCULATOR
+            </button>
+            <button
+              onClick={() => scrollToSection('methodology-section', 'methodology')}
+              className={`h-full px-1 border-b-[3px] transition-colors cursor-pointer flex items-center ${
+                activeSection === 'methodology'
+                  ? 'border-[#EF4444] text-[#0A0A0A] dark:text-[#FAFAFA]'
+                  : 'border-transparent text-[#404040] dark:text-[#D4D4D4] hover:text-[#0A0A0A] dark:hover:text-[#FAFAFA]'
+              }`}
+            >
+              HOW IT WORKS
+            </button>
+            <a
+              href="https://github.com/moeenchanna/openprice-atlas"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setActiveSection('')}
+              className="h-full px-1 border-b-[3px] border-transparent text-[#404040] dark:text-[#D4D4D4] hover:text-[#0A0A0A] dark:hover:text-[#FAFAFA] transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              GITHUB
+            </a>
+          </nav>
 
-        {/* Right side controls */}
-        <div className="flex items-center gap-4">
-          {/* Mobile GitHub link */}
-          <a
-            href="https://github.com/moeenchanna/openprice-atlas"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="md:hidden text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-            aria-label="GitHub Repository"
-          >
-            <svg className="h-5 w-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.577.688.479C19.138 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" /></svg>
-          </a>
-
-          {/* Theme Toggle */}
+          {/* Accessible Stark Theme Toggle */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-200"
-            aria-label="Toggle theme"
+            onClick={toggleTheme}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center border-2 border-[#0A0A0A] dark:border-[#525252] bg-transparent text-[#0A0A0A] dark:text-[#FAFAFA] hover:bg-[#F5F5F5] dark:hover:bg-[#1A1A1A] focus:outline-none focus-ring rounded-none transition-colors cursor-pointer"
           >
-            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {isDark ? (
+              <Sun className="w-5 h-5 text-[#EF4444]" aria-hidden="true" />
+            ) : (
+              <Moon className="w-5 h-5 text-[#0A0A0A]" aria-hidden="true" />
+            )}
           </button>
         </div>
       </div>
     </header>
   )
 }
+export default Header

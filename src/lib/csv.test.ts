@@ -47,6 +47,10 @@ describe('CSV Export Tests', () => {
       enablePsychologicalPricing: true,
       priceFloor: 0.2,
       priceCeiling: 1.2,
+      baseCurrency: 'USD',
+      displayMode: 'one-currency',
+      displayCurrency: 'same-as-base',
+      showLocalPrice: false,
     }
 
     const result: CalculationResult = {
@@ -60,9 +64,12 @@ describe('CSV Export Tests', () => {
       difference: -3087,
       isOverride: false,
       overrideValue: null,
+      recommendedLocalPrice: 9900,
+      recommendedLocalPriceFormatted: '₩9,900',
+      factor: 0.8,
     }
 
-    const csv = generateCSV([result], settings)
+    const csv = generateCSV([result], settings, 'USD')
 
     expect(csv).toContain('My SaaS')
     expect(csv).toContain('South Korea')

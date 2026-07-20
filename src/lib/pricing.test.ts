@@ -30,6 +30,10 @@ describe('Pricing Formula and Calculation Tests', () => {
     enablePsychologicalPricing: false, // disable to test raw math
     priceFloor: 0.2,
     priceCeiling: 1.2,
+    baseCurrency: 'USD',
+    displayMode: 'one-currency',
+    displayCurrency: 'same-as-base',
+    showLocalPrice: false,
   }
 
   it('should calculate FX-only conversion when S = 0', () => {
@@ -37,10 +41,22 @@ describe('Pricing Formula and Calculation Tests', () => {
       ...defaultSettings,
       adjustmentStrength: 0.0,
     }
-    const result = calculateRegionalPrice(dummyCountry, settings)
-    // rawLocalPrice = B * FX = 10 * 0.9 = 9.0
-    expect(result.recommendedPrice).toBe(9.0)
-    expect(result.fxConvertedPrice).toBe(9.0)
+    const result = calculateRegionalPrice(
+      dummyCountry,
+      settings,
+      1.0, // baseFx: USD = 1.0
+      1.0, // displayFx: USD = 1.0
+      'USD',
+      2,
+      '$'
+    )
+    // basePriceUSD = 10 / 1.0 = 10
+    // raw PPP = (0.8 / 0.9) ^ 0 = 1
+    // Clamp floor: 0.2, ceiling: 1.2. Factor = 1.
+    // rawSuggestedUSD = 10 * 1 = 10
+    // rawRecommendedPrice = 10 * 1.0 = 10
+    expect(result.recommendedPrice).toBe(10.0)
+    expect(result.fxConvertedPrice).toBe(10.0)
     expect(result.discountPercent).toBe(0)
   })
 
@@ -49,11 +65,21 @@ describe('Pricing Formula and Calculation Tests', () => {
       ...defaultSettings,
       adjustmentStrength: 1.0,
     }
-    const result = calculateRegionalPrice(dummyCountry, settings)
-    // rawLocalPrice = B * PPP = 10 * 0.8 = 8.0
-    expect(result.recommendedPrice).toBe(8.0)
-    expect(result.fxConvertedPrice).toBe(9.0)
-    expect(result.discountPercent).toBeCloseTo(11.11, 2) // (9 - 8)/9 = 11.11%
+    const result = calculateRegionalPrice(
+      dummyCountry,
+      settings,
+      1.0, // baseFx
+      1.0, // displayFx
+      'USD',
+      2,
+      '$'
+    )
+    // basePriceUSD = 10
+    // Factor = 0.8 / 0.9 = 0.8888
+    // Clamped = 0.8888
+    // rawSuggestedUSD = 10 * 0.8888 = 8.888
+    // displayPrice = 8.888 * 1.0 = 8.888
+    expect(result.recommendedPrice).toBeCloseTo(8.89, 2)
   })
 
   it('should calculate balanced blended pricing when S = 0.7', () => {
@@ -61,57 +87,180 @@ describe('Pricing Formula and Calculation Tests', () => {
       ...defaultSettings,
       adjustmentStrength: 0.7,
     }
-    const result = calculateRegionalPrice(dummyCountry, settings)
-    // rawLocalPrice = B * FX^(1-S) * PPP^S = 10 * (0.9^0.3) * (0.8^0.7)
-    // 0.9^0.3 = 0.9688
-    // 0.8^0.7 = 0.8550
-    // 10 * 0.9688 * 0.8550 = 8.2877
-    expect(result.recommendedPrice).toBeCloseTo(8.29, 2)
+    const result = calculateRegionalPrice(
+      dummyCountry,
+      settings,
+      1.0,
+      1.0,
+      'USD',
+      2,
+      '$'
+    )
+    // Factor = (0.8 / 0.9) ^ 0.7 = 0.9213
+    // suggestedPriceUSD = 10 * 0.9213 = 9.213
+    expect(result.recommendedPrice).toBeCloseTo(9.21, 2)
   })
 
   it('should enforce the price floor', () => {
-    // If PPP is very low, e.g. 0.1
     const cheapCountry: CountryData = {
       ...dummyCountry,
       ppp: 0.05,
     }
     const settings: FormSettings = {
       ...defaultSettings,
-      adjustmentStrength: 1.0, // pure PPP
-      priceFloor: 0.3, // floor is 30% of FX price
+      adjustmentStrength: 1.0,
+      priceFloor: 0.3, // floor is 30% of base
     }
-    const result = calculateRegionalPrice(cheapCountry, settings)
-    // fxPrice = 10 * 0.9 = 9.0
-    // raw PPP price = 10 * 0.05 = 0.5
-    // floor price = 9.0 * 0.3 = 2.7
-    // recommended should be clamped to 2.7
-    expect(result.recommendedPrice).toBe(2.7)
+    const result = calculateRegionalPrice(
+      cheapCountry,
+      settings,
+      1.0,
+      1.0,
+      'USD',
+      2,
+      '$'
+    )
+    // Factor = 0.05 / 0.9 = 0.0555 -> clamped to 0.3
+    // suggestedPriceUSD = 10 * 0.3 = 3.0
+    expect(result.recommendedPrice).toBe(3.0)
   })
 
   it('should enforce the price ceiling', () => {
-    // If PPP is very high, e.g. 2.5
     const expensiveCountry: CountryData = {
       ...dummyCountry,
       ppp: 2.5,
-      fx: 0.9,
     }
     const settings: FormSettings = {
       ...defaultSettings,
-      adjustmentStrength: 1.0, // pure PPP
-      priceCeiling: 1.1, // ceiling is 110% of FX price
+      adjustmentStrength: 1.0,
+      priceCeiling: 1.1, // ceiling is 110% of base
     }
-    const result = calculateRegionalPrice(expensiveCountry, settings)
-    // fxPrice = 10 * 0.9 = 9.0
-    // raw PPP price = 10 * 2.5 = 25.0
-    // ceiling price = 9.0 * 1.1 = 9.9
-    // recommended should be clamped to 9.9
-    expect(result.recommendedPrice).toBe(9.9)
+    const result = calculateRegionalPrice(
+      expensiveCountry,
+      settings,
+      1.0,
+      1.0,
+      'USD',
+      2,
+      '$'
+    )
+    // Factor = 2.5 / 0.9 = 2.77 -> clamped to 1.1
+    // suggestedPriceUSD = 10 * 1.1 = 11.0
+    expect(result.recommendedPrice).toBe(11.0)
   })
 
   it('should apply manual overrides correctly', () => {
-    const result = calculateRegionalPrice(dummyCountry, defaultSettings, 15.0)
-    expect(result.recommendedPrice).toBe(15.0)
+    // Stored as USD equivalent: overrideValue = 12.0
+    const result = calculateRegionalPrice(
+      dummyCountry,
+      defaultSettings,
+      1.0,
+      1.0,
+      'USD',
+      2,
+      '$',
+      12.0 // USD equivalent override
+    )
+    expect(result.recommendedPrice).toBe(12.0)
     expect(result.isOverride).toBe(true)
-    expect(result.overrideValue).toBe(15.0)
+    expect(result.overrideValue).toBe(12.0)
+  })
+
+  // ACCEPTANCE TEST 1: USA remains baseline
+  it('should preserve base price for United States when base/display is USD', () => {
+    const usaCountry: CountryData = {
+      name: 'United States',
+      iso2: 'US',
+      iso3: 'USA',
+      region: 'North America',
+      incomeGroup: 'High income',
+      currencyCode: 'USD',
+      currencyName: 'US Dollar',
+      currencySymbol: '$',
+      currencyDecimals: 2,
+      ppp: 1.0,
+      pppYear: 2024,
+      fx: 1.0,
+      fxYear: 2024,
+      quality: 'Direct household PPP',
+      dataSourceType: 'household',
+    }
+    const result = calculateRegionalPrice(
+      usaCountry,
+      defaultSettings,
+      1.0,
+      1.0,
+      'USD',
+      2,
+      '$'
+    )
+    expect(result.recommendedPrice).toBe(10.0) // Must match defaultSettings.basePrice exactly!
+  })
+
+  // ACCEPTANCE TEST 2: Pakistan USD recommendation differs from USA USD recommendation
+  it('should differentiate Pakistan price from USA due to buying power factor adjustment', () => {
+    const pakistanCountry: CountryData = {
+      name: 'Pakistan',
+      iso2: 'PK',
+      iso3: 'PAK',
+      region: 'South Asia',
+      incomeGroup: 'Lower middle income',
+      currencyCode: 'PKR',
+      currencyName: 'Pakistan Rupee',
+      currencySymbol: 'Rs',
+      currencyDecimals: 2,
+      ppp: 45.0,
+      pppYear: 2024,
+      fx: 278.0,
+      fxYear: 2024,
+      quality: 'Direct household PPP',
+      dataSourceType: 'household',
+    }
+    const settings: FormSettings = {
+      ...defaultSettings,
+      adjustmentStrength: 0.7,
+      priceFloor: 0.20,
+    }
+    const result = calculateRegionalPrice(
+      pakistanCountry,
+      settings,
+      1.0,
+      1.0,
+      'USD',
+      2,
+      '$'
+    )
+    // Factor = (45 / 278)^0.7 = 0.1618^0.7 = 0.281
+    // Since floor is 0.20, it is not clamped.
+    // suggestedPriceUSD = 10 * 0.2795 = 2.80 USD
+    // USA suggestion is 10.0 USD.
+    expect(result.recommendedPrice).toBeLessThan(10.0)
+    expect(result.recommendedPrice).toBeCloseTo(2.80, 2)
+  })
+
+  // ACCEPTANCE TEST 3: Switching display currency updates correctly
+  it('should convert recommended price when switching display currency', () => {
+    const resultUSD = calculateRegionalPrice(
+      dummyCountry,
+      defaultSettings,
+      1.0,
+      1.0, // displayFx USD
+      'USD',
+      2,
+      '$'
+    )
+
+    const resultEUR = calculateRegionalPrice(
+      dummyCountry,
+      defaultSettings,
+      1.0,
+      0.9, // displayFx EUR (1 USD = 0.9 EUR)
+      'EUR',
+      2,
+      '€'
+    )
+
+    // resultEUR should be resultUSD * 0.9
+    expect(resultEUR.recommendedPrice).toBeCloseTo(resultUSD.recommendedPrice * 0.9, 1)
   })
 })

@@ -5,8 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="manifest" href="manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#4f46e5" />
+    <meta name="theme-color" content="#0a0a0a" />
     
+    <script>
+      (function() {
+        const saved = localStorage.getItem('openprice_atlas_theme');
+        if (saved === 'light') {
+          document.documentElement.classList.remove('dark');
+        } else {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
     <title>OpenPrice Atlas - Global Regional Pricing Calculator for SaaS & Apps</title>
     <meta name="description" content="Estimate fair regional prices for your app or SaaS. Generate purchasing-power-adjusted price recommendations for countries around the world using World Bank economic indicators." />
     
@@ -22,7 +33,7 @@
     <meta property="twitter:title" content="OpenPrice Atlas - Global Regional Pricing Calculator" />
     <meta property="twitter:description" content="Estimate fair regional prices for your app or SaaS. Calculate blended purchasing-power-parity prices using official exchange rates." />
   </head>
-  <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+  <body class="bg-[#FAFAFA] dark:bg-[#0A0A0A] text-[#0A0A0A] dark:text-[#FAFAFA] font-sans antialiased transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

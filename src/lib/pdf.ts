@@ -5,7 +5,11 @@ import type { CalculationResult, FormSettings } from '../types/pricing'
 /**
  * Generates and downloads a polished PDF report of the regional prices.
  */
-export function downloadPDF(results: CalculationResult[], settings: FormSettings): void {
+export function downloadPDF(
+  results: CalculationResult[],
+  settings: FormSettings,
+  displayCurrencyCode: string,
+): void {
   // Use landscape orientation for spacious columns
   const doc = new jsPDF({
     orientation: 'landscape',
@@ -16,7 +20,6 @@ export function downloadPDF(results: CalculationResult[], settings: FormSettings
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 15
-  const genDate = new Date().toISOString().split('T')[0]
 
   // Page tracking for footer
   const totalPagesExp = '{total_pages_count_string}'
@@ -24,138 +27,183 @@ export function downloadPDF(results: CalculationResult[], settings: FormSettings
   // 1. Cover / Header Information
   doc.setFont('Helvetica', 'bold')
   doc.setFontSize(22)
-  doc.setTextColor(79, 70, 229) // Indigo-600
-  doc.text('OpenPrice Atlas', margin, margin + 5)
+  doc.setTextColor(10, 10, 10) // Black #0A0A0A
+  doc.text('OPENPRICE ATLAS', margin, margin + 5)
 
-  doc.setFontSize(10)
+  doc.setFontSize(9)
   doc.setFont('Helvetica', 'normal')
-  doc.setTextColor(100, 116, 139) // Slate-500
-  doc.text('Set smarter regional prices based on purchasing power parity', margin, margin + 10)
+  doc.setTextColor(82, 82, 82) // Neutral-600
+  doc.text('ESTIMATE FAIR REGIONAL PRICES FOR YOUR APP OR SAAS PRODUCT', margin, margin + 11)
 
-  // Divider Line
-  doc.setDrawColor(226, 232, 240) // Slate-200
+  // Red Accent Line
+  doc.setDrawColor(239, 68, 68) // Red #EF4444
+  doc.setLineWidth(1)
+  doc.line(margin, margin + 14, margin + 25, margin + 14)
+
+  // Black Divider Line
+  doc.setDrawColor(10, 10, 10) // Black #0A0A0A
   doc.setLineWidth(0.5)
-  doc.line(margin, margin + 14, pageWidth - margin, margin + 14)
+  doc.line(margin, margin + 16, pageWidth - margin, margin + 16)
 
   // Report Metadata Grid
   doc.setFont('Helvetica', 'bold')
   doc.setFontSize(9)
-  doc.setTextColor(71, 85, 105) // Slate-600
+  doc.setTextColor(10, 10, 10)
   
   // Left Column
-  doc.text('REPORT DETAILS', margin, margin + 22)
+  doc.text('REPORT DETAILS', margin, margin + 24)
   doc.setFont('Helvetica', 'normal')
-  doc.text(`Product Name: ${settings.productName}`, margin, margin + 27)
-  doc.text(`Base Price: $${settings.basePrice.toFixed(2)} USD`, margin, margin + 32)
-  doc.text(`Billing Period: ${settings.billingPeriod === 'monthly' ? 'Monthly' : 'Yearly'}`, margin, margin + 37)
+  doc.text(`Product Name: ${settings.productName}`, margin, margin + 29)
+  doc.text(`Base Price: ${settings.basePrice.toFixed(2)} ${settings.baseCurrency}`, margin, margin + 34)
+  doc.text(`Billing Period: ${settings.billingPeriod === 'monthly' ? 'Monthly' : 'Yearly'}`, margin, margin + 39)
 
   // Middle Column
   doc.setFont('Helvetica', 'bold')
-  doc.text('PRICING STRATEGY', margin + 80, margin + 22)
+  doc.text('PRICING STRATEGY', margin + 80, margin + 24)
   doc.setFont('Helvetica', 'normal')
-  doc.text(`Strategy Preset: ${settings.strategy.charAt(0).toUpperCase() + settings.strategy.slice(1)}`, margin + 80, margin + 27)
-  doc.text(`Adjustment Strength: ${(settings.adjustmentStrength * 100).toFixed(0)}%`, margin + 80, margin + 32)
-  doc.text(`Rounding: ${settings.enablePsychologicalPricing ? 'Enabled' : 'Disabled'}`, margin + 80, margin + 37)
+  doc.text(`Style: ${settings.strategy.toUpperCase()}`, margin + 80, margin + 29)
+  doc.text(`Adjustment Strength: ${(settings.adjustmentStrength * 100).toFixed(0)}%`, margin + 80, margin + 34)
+  doc.text(`Rounding: ${settings.enablePsychologicalPricing ? 'Enabled' : 'Disabled'}`, margin + 80, margin + 39)
 
   // Right Column
   doc.setFont('Helvetica', 'bold')
-  doc.text('BOUNDS & DATE', margin + 160, margin + 22)
+  doc.text('DISPLAY MODE & BOUNDS', margin + 160, margin + 24)
   doc.setFont('Helvetica', 'normal')
-  doc.text(`Price Floor: ${(settings.priceFloor * 100).toFixed(0)}%`, margin + 160, margin + 27)
-  doc.text(`Price Ceiling: ${(settings.priceCeiling * 100).toFixed(0)}%`, margin + 160, margin + 32)
-  doc.text(`Generated On: ${genDate}`, margin + 160, margin + 37)
+  doc.text(`Display Mode: ${settings.displayMode.toUpperCase()}`, margin + 160, margin + 29)
+  doc.text(`Display Currency: ${displayCurrencyCode}`, margin + 160, margin + 34)
+  doc.text(`Bounds: Floor ${(settings.priceFloor * 100).toFixed(0)}% / Ceiling ${(settings.priceCeiling * 100).toFixed(0)}%`, margin + 160, margin + 39)
 
   // Formula Summary
   doc.setFontSize(8)
-  doc.setTextColor(100, 116, 139)
+  doc.setTextColor(163, 163, 163) // Neutral-400
   doc.text(
     'Blended Formula: rawLocalPrice = Base USD * FX^(1-S) * PPP^S  [Where S = adjustment strength, clamped to floor/ceiling]',
     margin,
-    margin + 44
+    margin + 45
   )
 
-  // 2. Generate the country pricing table
-  const columns = [
-    'Country',
-    'Currency',
-    'FX Price',
-    'Recommended Price',
-    'Difference',
-    'Data Year',
-    'Data Quality',
-  ]
+  // 2. Generate the country pricing table columns depending on displayMode
+  let columns: string[] = []
+  let tableBody: string[][] = []
+  let columnStylesMap: { [key: number]: { cellWidth: number } } = {}
 
-  const tableBody = results.map(r => {
-    const finalPrice = r.isOverride && r.overrideValue !== null ? r.overrideValue : r.recommendedPrice
-    const diffVal = finalPrice - r.fxConvertedPrice
-    const diffPercent = r.fxConvertedPrice > 0 ? (diffVal / r.fxConvertedPrice) * 100 : 0
-    const prefix = diffVal > 0 ? '+' : ''
+  if (settings.displayMode === 'one-currency') {
+    // One Currency Mode PDF Columns
+    columns = [
+      'Country',
+      `Suggested Price (${displayCurrencyCode})`,
+      'Change from Base',
+      settings.showLocalPrice ? 'Local Price Checkout' : '',
+      'Data Quality',
+    ].filter(col => col !== '')
 
-    const formattedFX = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: r.country.currencyCode,
-      minimumFractionDigits: r.country.currencyDecimals,
-      maximumFractionDigits: r.country.currencyDecimals,
-    }).format(r.fxConvertedPrice)
+    tableBody = results.map(r => {
+      const diffVal = r.difference
+      const percentDiff = r.discountPercent * -1
+      
+      const changeString = Math.abs(diffVal) < 0.001 
+        ? 'Same as base' 
+        : `${Math.abs(percentDiff).toFixed(0)}% ${diffVal < 0 ? 'lower' : 'higher'}`
 
-    const formattedRec = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: r.country.currencyCode,
-      minimumFractionDigits: r.country.currencyDecimals,
-      maximumFractionDigits: r.country.currencyDecimals,
-    }).format(finalPrice)
+      const rowData = [
+        r.country.name + (r.isOverride ? ' *' : ''),
+        r.recommendedPriceFormatted,
+        changeString,
+      ]
 
-    const formattedDiff = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: r.country.currencyCode,
-      minimumFractionDigits: r.country.currencyDecimals,
-      maximumFractionDigits: r.country.currencyDecimals,
-    }).format(diffVal)
+      if (settings.showLocalPrice) {
+        rowData.push(r.recommendedLocalPriceFormatted)
+      }
 
-    // Append percentage
-    const diffString = `${prefix}${formattedDiff} (${prefix}${diffPercent.toFixed(0)}%)`
+      rowData.push(r.country.quality + (r.isOverride ? ' (Override)' : ''))
+      return rowData
+    })
 
-    return [
-      r.country.name + (r.isOverride ? ' *' : ''),
-      `${r.country.currencyCode} (${r.country.currencySymbol})`,
-      formattedFX,
-      formattedRec,
-      diffString,
-      r.country.pppYear || r.country.fxYear || 'N/A',
-      r.country.quality + (r.isOverride ? ' (Override)' : ''),
+    if (settings.showLocalPrice) {
+      columnStylesMap = {
+        0: { cellWidth: 60 }, // Country
+        1: { cellWidth: 50 }, // Suggested price
+        2: { cellWidth: 50 }, // Change from base
+        3: { cellWidth: 50 }, // Local checkout price
+        4: { cellWidth: 55 }, // Quality
+      }
+    } else {
+      columnStylesMap = {
+        0: { cellWidth: 70 }, // Country
+        1: { cellWidth: 65 }, // Suggested price
+        2: { cellWidth: 65 }, // Change from base
+        3: { cellWidth: 65 }, // Quality
+      }
+    }
+  } else {
+    // Local Currencies Mode PDF Columns
+    columns = [
+      'Country',
+      'Currency',
+      'Direct conversion',
+      'Suggested local price',
+      'Difference',
+      'Data Quality',
     ]
-  })
+
+    tableBody = results.map(r => {
+      const diffVal = r.difference
+      const percentDiff = r.discountPercent * -1
+      const prefix = diffVal > 0 ? '+' : ''
+
+      // Calculate local diff formatted string
+      let diffStr = '—'
+      if (Math.abs(diffVal) > 0.001) {
+        diffStr = `${prefix}${percentDiff.toFixed(0)}%`
+      }
+
+      return [
+        r.country.name + (r.isOverride ? ' *' : ''),
+        `${r.country.currencyCode} (${r.country.currencySymbol})`,
+        new Intl.NumberFormat(undefined, {
+          style: 'currency',
+          currency: r.country.currencyCode,
+          minimumFractionDigits: r.country.currencyDecimals,
+          maximumFractionDigits: r.country.currencyDecimals,
+        }).format(r.fxConvertedPrice),
+        r.recommendedPriceFormatted,
+        diffStr,
+        r.country.quality + (r.isOverride ? ' (Override)' : ''),
+      ]
+    })
+
+    columnStylesMap = {
+      0: { cellWidth: 60 }, // Country
+      1: { cellWidth: 35 }, // Currency
+      2: { cellWidth: 40 }, // Direct conversion
+      3: { cellWidth: 40 }, // Suggested local price
+      4: { cellWidth: 40 }, // Difference
+      5: { cellWidth: 50 }, // Quality
+    }
+  }
 
   autoTable(doc, {
     head: [columns],
     body: tableBody,
-    startY: margin + 48,
+    startY: margin + 49,
     theme: 'striped',
     headStyles: {
-      fillColor: [79, 70, 229], // Indigo-600
-      textColor: 255,
+      fillColor: [10, 10, 10], // Black #0A0A0A
+      textColor: 250, // Off-white #FAFAFA
       fontStyle: 'bold',
       fontSize: 9,
     },
     bodyStyles: {
       fontSize: 8,
-      textColor: [51, 65, 85], // Slate-700
+      textColor: [10, 10, 10], // Black text
     },
-    columnStyles: {
-      0: { cellWidth: 50 }, // Country
-      1: { cellWidth: 30 }, // Currency
-      2: { cellWidth: 35 }, // FX
-      3: { cellWidth: 35 }, // Recommended
-      4: { cellWidth: 45 }, // Difference
-      5: { cellWidth: 20 }, // Year
-      6: { cellWidth: 45 }, // Quality
-    },
+    columnStyles: columnStylesMap,
     margin: { left: margin, right: margin },
     didDrawPage: () => {
       // Footer text and page numbers
       doc.setFont('Helvetica', 'normal')
       doc.setFontSize(8)
-      doc.setTextColor(148, 163, 184) // Slate-400
+      doc.setTextColor(163, 163, 163) // Neutral-400
 
       // Page numbers
       const str = `Page ${doc.internal.pages.length - 1} of ${totalPagesExp}`
@@ -164,7 +212,7 @@ export function downloadPDF(results: CalculationResult[], settings: FormSettings
       // Disclaimer & Credits
       const disclaimer = 'Disclaimer: OpenPrice Atlas is an independent open-source project. Not affiliated with Netflix. All prices are estimates.'
       doc.text(disclaimer, margin, pageHeight - 12)
-      doc.text('GitHub: https://github.com/YOUR_GITHUB_USERNAME/openprice-atlas', margin, pageHeight - 8)
+      doc.text('GitHub: https://github.com/moeenchanna/openprice-atlas', margin, pageHeight - 8)
     },
   })
 
