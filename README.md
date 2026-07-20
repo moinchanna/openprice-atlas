@@ -1,13 +1,13 @@
 # OpenPrice Atlas
 
-[![GitHub License](https://img.shields.io/github/license/moeenchanna/openprice-atlas)](https://github.com/moeenchanna/openprice-atlas/blob/main/LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/moeenchanna/openprice-atlas/deploy.yml?branch=main)](https://github.com/moeenchanna/openprice-atlas/actions)
+[![GitHub License](https://img.shields.io/github/license/moinchanna/openprice-atlas)](https://github.com/moinchanna/openprice-atlas/blob/main/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/moinchanna/openprice-atlas/deploy.yml?branch=main)](https://github.com/moinchanna/openprice-atlas/actions/workflows/deploy.yml)
 
 > **Estimate fair regional prices for your app or SaaS product.**
 
 OpenPrice Atlas is a production-quality, open-source static regional pricing calculator. It helps SaaS founders, mobile developers, and indie hackers estimate purchasing-power-parity (PPP) adjusted prices for global markets.
 
-**Live Website Demo:** [https://moeenchanna.github.io/openprice-atlas/](https://moeenchanna.github.io/openprice-atlas/)
+**Live Website Demo:** [https://moinchanna.github.io/openprice-atlas/](https://moinchanna.github.io/openprice-atlas/)
 
 ---
 

@@ -44,7 +44,7 @@ export const Footer: React.FC = () => {
           <p>&copy; {currentYear} OpenPrice Atlas. Released under the MIT License.</p>
           <div className="flex items-center gap-4 font-bold uppercase tracking-wider">
             <a
-              href="https://github.com/moeenchanna/openprice-atlas/blob/main/METHODOLOGY.md"
+              href="https://github.com/moinchanna/openprice-atlas/blob/main/METHODOLOGY.md"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[#EF4444] transition-colors cursor-pointer text-[15px]"
@@ -53,7 +53,7 @@ export const Footer: React.FC = () => {
             </a>
             <span className="text-[#D4D4D4] dark:text-[#525252]">|</span>
             <a
-              href="https://github.com/moeenchanna/openprice-atlas"
+              href="https://github.com/moinchanna/openprice-atlas"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[#EF4444] transition-colors cursor-pointer text-[15px]"

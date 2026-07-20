@@ -68,7 +68,7 @@ export const Header: React.FC = () => {
               HOW IT WORKS
             </button>
             <a
-              href="https://github.com/moeenchanna/openprice-atlas"
+              href="https://github.com/moinchanna/openprice-atlas"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setActiveSection('')}
